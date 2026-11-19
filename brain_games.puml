@@ -1,0 +1,86 @@
+@startuml
+
+ title Brain Training Application - Class Diagram
+
+' Core application
+class Main {
+  +main(args: String[]): void
+}
+
+interface BrainGame {
+  +getGameName(): String
+  +startGame(): void
+  +isGameComplete(): boolean
+  +getResult(): GameResult
+}
+
+class GameManager {
+  -currentGame: BrainGame
+  -gameHistory: List<GameResult>
+  +startGame(game: BrainGame): void
+  +endGame(): void
+  +getGameHistory(): List<GameResult>
+}
+
+' Three game implementations
+class ReactionTimeGame {
+  -reactionTime: long
+  +startGame(): void
+  +recordResponse(): void
+  +getResult(): GameResult
+}
+
+class NumberMemoryGame {
+  -number: String
+  -level: int
+  +startGame(): void
+  +checkAnswer(answer: String): boolean
+  +getResult(): GameResult
+}
+
+class SequenceMemoryGame {
+  -sequence: List<Integer>
+  -level: int
+  +startGame(): void
+  +checkSequence(answer: List<Integer>): boolean
+  +getResult(): GameResult
+}
+
+' Results, statistics, and saving
+class GameResult {
+  -gameName: String
+  -score: double
+  -scoreUnit: String
+  -duration: long
+  -datePlayed: LocalDateTime
+}
+
+class StatisticsService {
+  +calculateAverageScore(gameName: String): double
+  +getPersonalBest(gameName: String): GameResult
+  +getTotalGamesPlayed(): int
+}
+
+interface ResultRepository {
+  +saveResult(result: GameResult): void
+  +getAllResults(): List<GameResult>
+}
+
+class FileResultRepository {
+  -filePath: String
+  +saveResult(result: GameResult): void
+  +getAllResults(): List<GameResult>
+}
+
+' Relationships
+Main --> GameManager
+GameManager o-- BrainGame : manages current game
+BrainGame <|.. ReactionTimeGame
+BrainGame <|.. NumberMemoryGame
+BrainGame <|.. SequenceMemoryGame
+GameManager --> GameResult : records
+StatisticsService --> ResultRepository : reads results
+FileResultRepository ..|> ResultRepository
+GameManager --> ResultRepository : saves results
+
+@enduml
